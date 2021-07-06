@@ -52,22 +52,6 @@ def launch_setup(context, *args, **kwargs):
     vehicle_info = get_vehicle_info(context)
 
     # set concat filter as a component
-    concat_component = ComposableNode(
-        package=pkg,
-        plugin='pointcloud_preprocessor::PointCloudConcatenateDataSynchronizerComponent',
-        name='concatenate_data',
-        remappings=[('output', 'concatenated/pointcloud')],
-        parameters=[{
-            'input_topics': ['/sensing/lidar/top/outlier_filtered/pointcloud',
-                             '/sensing/lidar/left/outlier_filtered/pointcloud',
-                             '/sensing/lidar/right/outlier_filtered/pointcloud'],
-            'output_frame': LaunchConfiguration('base_frame'),
-            'use_sim_time': EnvironmentVariable(name='AW_ROS2_USE_SIM_TIME', default_value='False'),
-        }],
-        extra_arguments=[{
-            'use_intra_process_comms': LaunchConfiguration('use_intra_process')
-        }],
-    )
 
     passthrough_component = ComposableNode(
         package=pkg,
@@ -89,30 +73,6 @@ def launch_setup(context, *args, **kwargs):
     )
 
     # set crop box filter as a component
-    cropbox_component = ComposableNode(
-        package=pkg,
-        plugin='pointcloud_preprocessor::CropBoxFilterComponent',
-        name='crop_box_filter',
-        remappings=[
-            ('input', 'concatenated/pointcloud'),
-            ('output', 'measurement_range_cropped/pointcloud'),
-        ],
-        parameters=[{
-            'input_frame': LaunchConfiguration('base_frame'),
-            'output_frame': LaunchConfiguration('base_frame'),
-            'min_x': -50.0,
-            'max_x': 100.0,
-            'min_y': -50.0,
-            'max_y': 50.0,
-            'min_z': vehicle_info['min_height_offset'],
-            'max_z': vehicle_info['max_height_offset'],
-            'negative': False,
-            'use_sim_time': EnvironmentVariable(name='AW_ROS2_USE_SIM_TIME', default_value='False'),
-        }],
-        extra_arguments=[{
-            'use_intra_process_comms': LaunchConfiguration('use_intra_process')
-        }],
-    )
 
     ground_component = ComposableNode(
         package=pkg,

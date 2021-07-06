@@ -65,7 +65,7 @@ def launch_setup(context, *args, **kwargs):
                                              'invalid_intensity',
                                              'frame_id', 'scan_phase'),
                      'use_sim_time': EnvironmentVariable(name='AW_ROS2_USE_SIM_TIME',
-                                                         default_value='False'),
+                                                         default_value='False')
         }],
         remappings=[('velodyne_points', 'pointcloud_raw'),
                     ('velodyne_points_ex', 'pointcloud_raw_ex')],
@@ -110,54 +110,54 @@ def launch_setup(context, *args, **kwargs):
     cropbox_parameters['min_z'] = mirror_info['min_height_offset']
     cropbox_parameters['max_z'] = mirror_info['max_height_offset']
 
-    nodes.append(ComposableNode(
-        package='pointcloud_preprocessor',
-        plugin='pointcloud_preprocessor::CropBoxFilterComponent',
-        name='crop_box_filter_mirror',
-        remappings=[('input', 'self_cropped/pointcloud_ex'),
-                    ('output', 'mirror_cropped/pointcloud_ex'),
-                    ],
-        parameters=[cropbox_parameters],
-        extra_arguments=[{
-            'use_intra_process_comms': LaunchConfiguration('use_intra_process')
-        }],
-    )
-    )
+    # nodes.append(ComposableNode(
+    #     package='pointcloud_preprocessor',
+    #     plugin='pointcloud_preprocessor::CropBoxFilterComponent',
+    #     name='crop_box_filter_mirror',
+    #     remappings=[('input', 'self_cropped/pointcloud_ex'),
+    #                 ('output', 'mirror_cropped/pointcloud_ex'),
+    #                 ],
+    #     parameters=[cropbox_parameters],
+    #     extra_arguments=[{
+    #         'use_intra_process_comms': LaunchConfiguration('use_intra_process')
+    #     }],
+    # )
+    # )
 
-    nodes.append(ComposableNode(
-        package='velodyne_pointcloud',
-        plugin='velodyne_pointcloud::Interpolate',
-        name='velodyne_interpolate_node',
-        remappings=[
-            ('velodyne_points_ex', 'mirror_cropped/pointcloud_ex'),
-            ('velodyne_points_interpolate', 'rectified/pointcloud'),
-            ('velodyne_points_interpolate_ex', 'rectified/pointcloud_ex'),
-        ],
-        parameters=[{
-            'use_sim_time': EnvironmentVariable(name='AW_ROS2_USE_SIM_TIME', default_value='False'),
-        }],
-        extra_arguments=[{
-            'use_intra_process_comms': LaunchConfiguration('use_intra_process')
-        }],
-    )
-    )
+    # nodes.append(ComposableNode(
+    #     package='velodyne_pointcloud',
+    #     plugin='velodyne_pointcloud::Interpolate',
+    #     name='velodyne_interpolate_node',
+    #     remappings=[
+    #         ('velodyne_points_ex', 'mirror_cropped/pointcloud_ex'),
+    #         ('velodyne_points_interpolate', 'rectified/pointcloud'),
+    #         ('velodyne_points_interpolate_ex', 'rectified/pointcloud_ex'),
+    #     ],
+    #     parameters=[{
+    #         'use_sim_time': EnvironmentVariable(name='AW_ROS2_USE_SIM_TIME', default_value='False'),
+    #     }],
+    #     extra_arguments=[{
+    #         'use_intra_process_comms': LaunchConfiguration('use_intra_process')
+    #     }],
+    # )
+    # )
 
-    nodes.append(ComposableNode(
-        package='pointcloud_preprocessor',
-        plugin='pointcloud_preprocessor::RingOutlierFilterComponent',
-        name='ring_outlier_filter',
-        remappings=[
-            ('input', 'rectified/pointcloud_ex'),
-            ('output', 'outlier_filtered/pointcloud')
-        ],
-        parameters=[{
-            'use_sim_time': EnvironmentVariable(name='AW_ROS2_USE_SIM_TIME', default_value='False'),
-        }],
-        extra_arguments=[{
-            'use_intra_process_comms': LaunchConfiguration('use_intra_process')
-        }],
-    )
-    )
+    # nodes.append(ComposableNode(
+    #     package='pointcloud_preprocessor',
+    #     plugin='pointcloud_preprocessor::RingOutlierFilterComponent',
+    #     name='ring_outlier_filter',
+    #     remappings=[
+    #         ('input', 'rectified/pointcloud_ex'),
+    #         ('output', 'outlier_filtered/pointcloud')
+    #     ],
+    #     parameters=[{
+    #         'use_sim_time': EnvironmentVariable(name='AW_ROS2_USE_SIM_TIME', default_value='False'),
+    #     }],
+    #     extra_arguments=[{
+    #         'use_intra_process_comms': LaunchConfiguration('use_intra_process')
+    #     }],
+    # )
+    # )
 
     # set container to run all required components in the same process
     container = ComposableNodeContainer(
@@ -167,6 +167,8 @@ def launch_setup(context, *args, **kwargs):
         package='rclcpp_components',
         executable=LaunchConfiguration('container_executable'),
         composable_node_descriptions=nodes,
+        # arguments=['--ros-args', '--log-level', 'DEBUG'],
+        output='screen',
         parameters=[{
             'use_sim_time': EnvironmentVariable(name='AW_ROS2_USE_SIM_TIME', default_value='False'),
         }],
